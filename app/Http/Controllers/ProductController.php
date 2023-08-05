@@ -105,21 +105,55 @@ class ProductController extends Controller
         );
 
 
-        if ($request->input('oldfiles')) {
-            foreach ($request->input('oldfiles') as $image) {
-                File::delete($image);
-            }
-        }
-
         $images = [];
 
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
-                $imageName = time() . '_' . $image->getClientOriginalName();
-                $image->move(public_path('uploads'), $imageName);
-                $images[] = 'uploads/' . $imageName;
+        /* 
+        //checking files in oldafiles if it's exist or not in newImages, if it is exist then don't 
+        delete and if it is not exist delete it from upload folder 
+        also adding newImg into images array 
+
+        ====
+        Here we are getting string type data so that we used $request->input('images')
+        */
+        if ($request->input('oldFiles')) {
+
+            $oldImages = $request->input('oldFiles');
+            $newImages = $request->input('images') ?? [];
+
+            $deleteThisImg =   array_diff($oldImages, $newImages);
+
+            foreach ($newImages as $img) {
+                $images[] = $img;
+            }
+
+
+            if ($deleteThisImg) {
+
+                foreach ($deleteThisImg as $img) {
+                    File::delete($img);
+                }
             }
         }
+
+
+        /* 
+        We are getting two types data from frontend 
+        1- with files 2- without files 
+        =====
+        here we are checking if request has file then loop it 
+        add files to images array also upload it to upload folder
+        */
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $image) {
+                if (!empty($image)) {
+
+                    $imageName = time() . '_' . $image->getClientOriginalName();
+                    $image->move(public_path('uploads'), $imageName);
+                    $images[] = 'uploads/' . $imageName;
+                }
+            }
+        }
+
 
 
         $product->images = json_encode($images);
@@ -127,7 +161,24 @@ class ProductController extends Controller
         $product->save();
 
         return redirect('/dashboard/products')->with(['msg' => 'updated successfully']);
-        // $products  = Product::with('category')->where('user_id', $userId)->first();
-        // return Inertia('dashboard/ProductUpdate', ['product' => $product, 'category' => $category, 'categories' => $categories]);
+    }
+
+
+    public function destroy(Product $product)
+    {
+
+        $images = $product->image;
+        foreach ($images as $image) {
+            File::delete($image);
+        }
+
+        $delete = $product->delete();
+
+
+        if ($delete) {
+            return redirect()->route('products')->with(['msg' => 'Product deleted']);
+        } else {
+            return redirect()->route('products')->with(['msg' => 'Something went wrong']);
+        }
     }
 }

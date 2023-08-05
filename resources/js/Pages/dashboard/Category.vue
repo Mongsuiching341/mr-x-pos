@@ -1,34 +1,27 @@
 <template>
     <Layout>
-        <DeleteModal @deleteProduct="deleteMe(productId)" @hideModal="hideModal" :showModal="showModal" />
+        <DeleteModal @deleteProduct="deleteMe(categoryId)" @hideModal="hideModal" :showModal="showModal" />
         <div>
             <DataTable id="myTable" class="display table table-striped">
                 <thead>
                     <tr>
-                        <th>Image</th>
                         <th>Name</th>
-                        <th>Price</th>
-                        <th>Category</th>
-                        <th>Unit</th>
+                        <th>Category Id</th>
                         <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="product in  products " key="product.name">
-                        <td><img class="w-[50px] h-[50px]" :src="'/' + product.images[0]" :alt="product.name"></td>
-                        <td>{{ product.name }}</td>
-                        <td>{{ product.price }}</td>
-                        <td>{{ product.category.name }}</td>
-                        <td>{{ product.unit }}</td>
+                    <tr v-for="category in  categories " :key="category.name">
+                        <td>{{ category.name }}</td>
+                        <td>{{ category.id }}</td>
                         <td>
-
                             <Link class="bg-blue-500 text-white py-2 px-3 rounded"
-                                :href="'/dashboard/products/' + product.id + '/edit'">
+                                :href="'/dashboard/products/categories/' + category.id + '/edit'">
                             Edit
                             </Link>
 
 
-                            <button @click="passproductIdAndShowModal(product.id)"
+                            <button @click=" passCategoryIdAndShowModal(category.id)"
                                 class="bg-blue-500 text-white py-2 px-3 rounded ml-2">Delete</button>
 
 
@@ -53,21 +46,20 @@ import DataTablesCore from 'datatables.net';
 
 DataTable.use(DataTablesCore);
 
-const productId = ref(null);
+const categoryId = ref(null);
 const showModal = ref(false);
 
 
 const props = defineProps({
-    products: Object,
-    msg: Object,
+    categories: Object,
 })
 
-const products = props.products;
+// const products = props.products;
 const page = usePage();
 
 
-function passproductIdAndShowModal(id) {
-    productId.value = id;
+function passCategoryIdAndShowModal(id) {
+    categoryId.value = id;
     showModal.value = true
 }
 
@@ -76,11 +68,11 @@ function hideModal() {
 }
 
 function deleteMe(id) {
-    router.delete('/dashboard/products/' + id, {
+    router.delete('/dashboard/products/categories/' + id, {
 
         onSuccess() {
             showModal.value = false
-            router.visit('/dashboard/products')
+            router.visit('/dashboard/products/categories')
             Toastify({
                 text: page.props.flash.msg ??= props.msg,
                 className: "bg-blue-500",
@@ -90,5 +82,5 @@ function deleteMe(id) {
 }
 
 
-console.log(products);
+// console.log(products);
 </script>

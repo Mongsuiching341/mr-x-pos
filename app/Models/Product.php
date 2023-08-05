@@ -25,4 +25,13 @@ class Product extends Model
             }
         );
     }
+    public function image(): Attribute
+    {
+
+        return Attribute::make(
+            get: function ($value, $attributes) {
+                return   json_decode($attributes['images'], true);
+            }
+        );
+    }
 }

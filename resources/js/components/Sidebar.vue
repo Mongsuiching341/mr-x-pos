@@ -18,7 +18,10 @@
                         <Link href="/dashboard/products-create">Create Product</Link>
                     </li>
                     <li>
-                        <Link href="/dashboard/categories">Categories</Link>
+                        <Link href="/dashboard/products/categories">Categories</Link>
+                    </li>
+                    <li>
+                        <Link href="/dashboard/products/categories/create">Create Category</Link>
                     </li>
                 </ul>
             </div>

@@ -77,7 +77,7 @@
 <script setup>
 import { useForm } from '@inertiajs/vue3';
 import Layout from '../Shared/Layout.vue';
-import { ref } from 'vue';
+import { reactive, ref } from 'vue';
 import Toastify from 'toastify-js'
 import "toastify-js/src/toastify.css"
 import { usePage } from '@inertiajs/vue3'
@@ -86,30 +86,35 @@ import { usePage } from '@inertiajs/vue3'
 const props = defineProps({
     product: Object,
     category: Object,
-    categories: Object
+    categories: Object,
 })
+
 
 const previewImg = ref([...props.product.images])
 const urls = ref([...props.product.images])
 const oldFiles = ref([...props.product.images])
+
 //methods
 function deleteImg(pos) {
-    console.log('clicked')
     previewImg.value.forEach((item, index) => {
         if (previewImg.value[pos] === previewImg.value[index]) {
-            console.log(previewImg.value[pos])
             previewImg.value.splice(pos, 1);
             urls.value.splice(pos, 1);
         }
     })
+
+    form.images = previewImg.value;
 }
 
 function changeImg(event) {
     if (event.target.files[0]) {
 
-        previewImg.value.push(event.target.files[0]);
 
+        previewImg.value.push(event.target.files[0]);
         const file = event.target.files[0];
+
+        console.log(event.target.files)
+
         const url = URL.createObjectURL(file);
 
         urls.value.push(url);
@@ -117,7 +122,6 @@ function changeImg(event) {
         form.images = previewImg.value;
 
     }
-    console.log(previewImg.value)
 }
 
 const form = useForm({
@@ -133,7 +137,8 @@ const form = useForm({
 const page = usePage()
 
 function submit() {
-    form.post('/dashboard/products/edit/' + props.product.id, {
+    form.post('/dashboard/products/' + props.product.id, {
+        forceFormData: true,
         onSuccess: () => {
             Toastify({
                 text: page.props.flash.msg ??= props.msg,
